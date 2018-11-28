@@ -1,0 +1,10 @@
+.DS_Store
+target
+build
+bin
+.project
+.classpath
+.settings
+.springBeans
+.idea
+.gitignore
