@@ -5,3 +5,8 @@ spring:
     serialization:
       write-dates-as-timestamps: false  #使用数值timestamp表示日期，true时会忽略date-format
     
+logging:
+  file: target/app.log
+  level:
+    ROOT: WARN
+    com.rest: TRACE
