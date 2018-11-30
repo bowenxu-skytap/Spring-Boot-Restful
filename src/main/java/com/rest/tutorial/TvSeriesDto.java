@@ -43,4 +43,9 @@ public class TvSeriesDto {
 		this.originRelease = originRelease;
 	}
 	
+	@Override
+	public String toString() {
+		return this.getClass().getName() + "{id=" + id + ";name=" + name + "}";
+	}
+	
 }
