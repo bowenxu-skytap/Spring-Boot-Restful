@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,7 +59,7 @@ public class TvSeriesController {
 	}
 	
 	@PostMapping
-	public TvSeriesDto insertOne(@RequestBody TvSeriesDto tvSeriesDto) {
+	public TvSeriesDto insertOne(@Valid @RequestBody TvSeriesDto tvSeriesDto) {
 		if (log.isTraceEnabled()) {
 			log.trace("Passing object: " + tvSeriesDto);
 		}

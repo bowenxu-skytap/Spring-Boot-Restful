@@ -1,11 +1,31 @@
 package com.rest.tutorial;
 
 import java.util.Date;
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class TvSeriesDto {
-	private int id;
+	@Null
+	private Integer id;
+	@NotNull
 	private String name;
+	@DecimalMin("1")
 	private int seasonCount;
+	@Valid
+	@NotNull
+	@Size(min=2)
+	private List<TvCharacterDto> tvCharacters;
+    //如果想用long型的timestamp表示日期，可用： @JsonFormat(shape = JsonFormat.Shape.NUMBER)
+    @JsonFormat(timezone="GMT+8", pattern="yyyy-MM-dd")
+	@Past		 //@Past表示只接受过去的时间，比当前时间还晚的被认为不合格
 	private Date originRelease;
 	
 	public TvSeriesDto() {}
@@ -21,7 +41,7 @@ public class TvSeriesDto {
 	public int getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	public String getName() {
@@ -42,7 +62,13 @@ public class TvSeriesDto {
 	public void setOriginRelease(Date originRelease) {
 		this.originRelease = originRelease;
 	}
-	
+	public List<TvCharacterDto> getTvCharacters() {
+		return tvCharacters;
+	}
+	public void setTvCharacters(List<TvCharacterDto> tvCharacters) {
+		this.tvCharacters = tvCharacters;
+	}
+
 	@Override
 	public String toString() {
 		return this.getClass().getName() + "{id=" + id + ";name=" + name + "}";
