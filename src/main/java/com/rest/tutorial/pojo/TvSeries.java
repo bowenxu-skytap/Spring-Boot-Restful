@@ -1,4 +1,4 @@
-package com.rest.tutorial;
+package com.rest.tutorial.pojo;
 
 import java.util.Date;
 import java.util.List;
@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-public class TvSeriesDto {
+public class TvSeries {
 	@Null
 	private Integer id;
 	@NotNull
@@ -22,15 +22,15 @@ public class TvSeriesDto {
 	@Valid
 	@NotNull
 	@Size(min=2)
-	private List<TvCharacterDto> tvCharacters;
+	private List<TvCharacter> tvCharacters;
     //如果想用long型的timestamp表示日期，可用： @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     @JsonFormat(timezone="GMT+8", pattern="yyyy-MM-dd")
 	@Past		 //@Past表示只接受过去的时间，比当前时间还晚的被认为不合格
 	private Date originRelease;
 	
-	public TvSeriesDto() {}
+	public TvSeries() {}
 	
-	public TvSeriesDto(int id, String name, int seasonCount, Date originRelease) {
+	public TvSeries(int id, String name, int seasonCount, Date originRelease) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -62,10 +62,10 @@ public class TvSeriesDto {
 	public void setOriginRelease(Date originRelease) {
 		this.originRelease = originRelease;
 	}
-	public List<TvCharacterDto> getTvCharacters() {
+	public List<TvCharacter> getTvCharacters() {
 		return tvCharacters;
 	}
-	public void setTvCharacters(List<TvCharacterDto> tvCharacters) {
+	public void setTvCharacters(List<TvCharacter> tvCharacters) {
 		this.tvCharacters = tvCharacters;
 	}
 

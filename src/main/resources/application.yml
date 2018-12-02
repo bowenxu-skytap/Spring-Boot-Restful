@@ -1,12 +1,21 @@
 spring:
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/tvseries?stringtype=unspecified&ApplicationName=tutorial
+    username: postgres
+    password: 313126
+    
   jackson:
     date-format: yyyy-MM-dd #如果使用字符串表示，用这行设置format
     time-zone: GMT+8
     serialization:
       write-dates-as-timestamps: false  #使用数值timestamp表示日期，true时会忽略date-format
+      
+mybatis.configuration.mapUnderscoreToCamelCase: true
     
 logging:
   file: target/app.log
   level:
     ROOT: WARN
     com.rest: TRACE
+    

@@ -1,8 +1,8 @@
-package com.rest.tutorial;
+package com.rest.tutorial.pojo;
 
 import javax.validation.constraints.NotNull;
 
-public class TvCharacterDto {
+public class TvCharacter {
 	private Integer id;
 	private int tvSeriesId;
 	@NotNull
