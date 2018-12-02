@@ -22,6 +22,6 @@ public interface TvSeriesDao {
 	@Delete("delete from tv_series where id=#{id}")
 	public int delete(int id);
 	
-	@Delete("update tv_series set status=-1, reason=#{reason} where id=#{id}")
+	@Delete("update tv_series set status=-1, delete_reason=#{reason} where id=#{id}")
 	public int logicDelete(int id, String reason);
 }

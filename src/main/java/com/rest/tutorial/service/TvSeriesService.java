@@ -31,7 +31,11 @@ public class TvSeriesService {
         if(log.isTraceEnabled()) {
             log.trace("getAllTvSeries started   ");
         }
-		return seriesDao.getAll();
+        List<TvSeries> res = seriesDao.getAll();
+        for (TvSeries ts: res) {
+        	ts.setTvCharacters(characterDao.getAllByTvSeriesId(ts.getId()));
+        }
+		return res;
 	}
 	
 	@Transactional(readOnly=true)

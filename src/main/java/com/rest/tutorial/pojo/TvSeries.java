@@ -24,8 +24,8 @@ public class TvSeries {
 	@Past		 //@Past表示只接受过去的时间，比当前时间还晚的被认为不合格
 	private Date originRelease;
 	@Valid
-//	@NotNull
-//	@Size(min=2)
+	@NotNull
+	@Size(min=2)
 	private List<TvCharacter> tvCharacters;
 	
 	public TvSeries() {}
