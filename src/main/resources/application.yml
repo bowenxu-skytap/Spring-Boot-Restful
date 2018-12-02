@@ -1,4 +1,10 @@
+server:
+  port: 8080
+
 spring:
+  application:
+    name: spring-boot-tutorial
+    
   datasource:
     driverClassName: org.postgresql.Driver
     url: jdbc:postgresql://127.0.0.1:5432/tvseries?stringtype=unspecified&ApplicationName=tutorial
@@ -18,4 +24,8 @@ logging:
   level:
     ROOT: WARN
     com.rest: TRACE
+    com.rest.tutorial.dao: WARN
     
+#此项目的自定义属性  
+tutorial:
+  uploadFolder: target/upload-files/    #文件上传目录，可以用/开头的绝对路径

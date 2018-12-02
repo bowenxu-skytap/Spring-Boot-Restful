@@ -1,5 +1,6 @@
 package com.rest.tutorial.controller;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -16,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,6 +40,8 @@ public class TvSeriesController {
 	private static final Log log = LogFactory.getLog(TvSeriesController.class);
 	
 	@Autowired TvSeriesService tvSeriesService;
+	@Value("${tutorial.uploadFolder:target/upload-files}") 
+	String uploadFolder;
 
 	@GetMapping
 	public List<TvSeries> getAll() {
@@ -56,34 +60,36 @@ public class TvSeriesController {
 		if (log.isTraceEnabled()) {
 			log.trace("getOne " + id);
 		}
-		if (id == 101) {
-			return createWestWorld();
-		} else if (id == 102) {
-			return createPoi();
-		} else {
+		TvSeries ts = tvSeriesService.getTvSeriesById(id);
+		if (ts == null) {
 			throw new ResourceNotFoundException();
 		}
+		return ts;
 	}
 	
 	@PostMapping
-	public TvSeries insertOne(@Valid @RequestBody TvSeries tvSeriesDto) {
+	public TvSeries insertOne(@Valid @RequestBody TvSeries tvSeries) {
 		if (log.isTraceEnabled()) {
-			log.trace("Passing object: " + tvSeriesDto);
+			log.trace("Passing object: " + tvSeries);
 		}
-		//test
-		tvSeriesDto.setId(9999);
-		return tvSeriesDto;
+		tvSeriesService.addTvSeries(tvSeries);
+		return tvSeries;
 	}
 	
 	@PutMapping("/{id}")
-	public TvSeries updateOne(@PathVariable int id, @RequestBody TvSeries tvSeriesDto) {
+	public TvSeries updateOne(@PathVariable int id, @RequestBody TvSeries tvSeries) {
 		if (log.isTraceEnabled()) {
 			log.trace("updateOne " + id);
 		}
-		if (id == 101 || id == 102) {
-			return createPoi();
+		TvSeries ts = tvSeriesService.getTvSeriesById(id);
+		if (ts == null) {
+			throw new ResourceNotFoundException();
 		}
-		throw new ResourceNotFoundException();
+		ts.setSeasonCount(tvSeries.getSeasonCount());
+		ts.setName(tvSeries.getName());
+		ts.setOriginRelease(tvSeries.getOriginRelease());
+		tvSeriesService.updateTvSeries(ts);
+		return ts;
 	}
 	
 	@DeleteMapping("/{id}")
@@ -93,25 +99,39 @@ public class TvSeriesController {
 			log.trace("deleteOne " + id);
 		}
 		Map<String, String> res = new HashMap<>();
-		if (id == 101) {
-			res.put("message", "#101 is deleted by " + request.getRemoteAddr() + 
-					" and(reason: " + deleteReason + ")");
-		} else if (id == 102) {
-			throw new RuntimeException("#120 cannot be deleted");
-		} else {
+		TvSeries ts = tvSeriesService.getTvSeriesById(id);	
+		if (ts == null) {
 			throw new ResourceNotFoundException();
+		} else {
+			tvSeriesService.deleteTvSeries(id, deleteReason);
+			res.put("message", "#" + id + " is deleted by " + request.getRemoteAddr() + 
+					" and(reason: " + deleteReason + ")");
 		}
 		return res;
 	}
 	
 	@PostMapping(value="/{id}/photos", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
-	public void addPhoto(@PathVariable int id, @RequestParam("photo") MultipartFile imgFile) throws Exception {
+	public Map<String, String> addPhoto(@PathVariable int id, 
+			@RequestParam("photo") MultipartFile imgFile) throws Exception {
 		if (log.isTraceEnabled()) {
-			log.trace(id + " has received the file with file: " + imgFile.getOriginalFilename());
+			log.trace("TV series " + id + " has received the file with file: " + imgFile.getOriginalFilename());
 		}
-		FileOutputStream fos = new FileOutputStream("target/" + imgFile.getOriginalFilename());
-		IOUtils.copy(imgFile.getInputStream(), fos);
-		fos.close();
+		//Save file
+		File folder = new File(uploadFolder);
+		if(!folder.exists()) {
+			folder.mkdirs();
+		}
+		String fileName = imgFile.getOriginalFilename();
+		if(fileName.endsWith(".jpg")) {
+			FileOutputStream fos = new FileOutputStream(new File(folder, fileName));
+			IOUtils.copy(imgFile.getInputStream(), fos);
+			fos.close();
+			Map<String, String> res = new HashMap<>();
+			res.put("photo", fileName);
+			return res;
+		} else {
+			throw new RuntimeException("Unsupported format，only support jpg format");
+		}
 	}
 	
     @GetMapping(value="/{id}/icon", produces=MediaType.IMAGE_JPEG_VALUE)
@@ -127,17 +147,17 @@ public class TvSeriesController {
     /**
      * 创建电视剧“Person of Interest",仅仅方便此节做展示其他方法用，以后章节把数据存储到数据库后，会删除此方法
      */
-    private TvSeries createPoi() {
-        Calendar c = Calendar.getInstance();
-        c.set(2011, Calendar.SEPTEMBER, 22, 0, 0, 0);
-        return new TvSeries(102, "Person of Interest", 5, c.getTime());
-    }
+//    private TvSeries createPoi() {
+//        Calendar c = Calendar.getInstance();
+//        c.set(2011, Calendar.SEPTEMBER, 22, 0, 0, 0);
+//        return new TvSeries(102, "Person of Interest", 5, c.getTime());
+//    }
     /**
      * 创建电视剧“West World",仅仅方便此节做展示其他方法用，以后章节把数据存储到数据库后，会删除此方法
      */
-    private TvSeries createWestWorld() {
-        Calendar c = Calendar.getInstance();
-        c.set(2016, Calendar.OCTOBER, 2, 0, 0, 0);
-        return new TvSeries(101, "West World", 1, c.getTime());
-    }
+//    private TvSeries createWestWorld() {
+//        Calendar c = Calendar.getInstance();
+//        c.set(2016, Calendar.OCTOBER, 2, 0, 0, 0);
+//        return new TvSeries(101, "West World", 1, c.getTime());
+//    }
 }
