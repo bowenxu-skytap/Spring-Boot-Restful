@@ -1,9 +1,13 @@
 package com.rest.tutorial;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -16,12 +20,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rest.tutorial.controller.TvSeriesController;
 import com.rest.tutorial.dao.TvCharacterDao;
 import com.rest.tutorial.dao.TvSeriesDao;
@@ -109,5 +118,37 @@ public class TutorialApplicationTests {
         
         //确保tvCharacterDao.insert被访问过
         Assert.assertTrue(bitSet.get(0));
+    }
+	
+    @Test
+    public void testFileUpload() throws Exception{
+        String fileFolder = "target/mockito/";
+        File folder = new File(fileFolder);
+        if(!folder.exists()) {
+            folder.mkdirs();
+        }
+        // 下面这句可以设置bean里面通过@Value获得的数据
+        ReflectionTestUtils.setField(tvSeriesController, "uploadFolder", folder.getAbsolutePath());
+        
+        InputStream is = getClass().getResourceAsStream("/testFileUpload.jpg");
+        if(is == null) {
+            throw new RuntimeException("需要先在src/test/resources目录下放置一张jpg文件，名为testFileUpload.jpg然后运行测试");
+        }
+        
+        //模拟一个文件上传的请求
+        MockMultipartFile imgFile = new MockMultipartFile("photo", "testFileUpload.jpg", "image/jpeg", IOUtils.toByteArray(is));
+        
+        ResultActions result = mockMvc.perform(MockMvcRequestBuilders.multipart("/tvseries/1/photos")
+                        .file(imgFile))
+                        .andExpect(MockMvcResultMatchers.status().isOk());
+        
+        //解析返回的JSON
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> map = mapper.readValue(result.andReturn().getResponse().getContentAsString(), new TypeReference<Map<String, Object>>(){});
+       
+        String fileName = (String) map.get("photo");
+        File f2 = new File(folder, fileName);
+        //返回的文件名，应该已经保存在filFolder文件夹下
+        Assert.assertTrue(f2.exists());
     }
 }
