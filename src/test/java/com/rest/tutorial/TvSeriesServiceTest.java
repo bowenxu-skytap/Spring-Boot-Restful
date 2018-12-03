@@ -45,6 +45,7 @@ public class TvSeriesServiceTest {
 		tc.setId(1);
 		tc.setName("John");
 		tc.setTvSeriesId(1);
+		characters.add(tc);
 		
 		//下面这个语句是告诉mock出来tvSeriesDao当执行getAll方法时，返回上面创建的那个list
 		Mockito.when(seriesDao.getAll()).thenReturn(list);
